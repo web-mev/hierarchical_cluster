@@ -1,4 +1,4 @@
-/opt/software/run_pca.py -i {{input_matrix}} \
+python3 /opt/software/run_pca.py -i {{input_matrix}} \
     {% if distance_metric %} -d {{distance_metric}} {% endif %} \ 
     {% if linkage %} -l {{linkage}} {% endif %} \
     {% if clustering_dimension %} -c {{clustering_dimension}} {% endif %}

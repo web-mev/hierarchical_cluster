@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import to_tree
 
 def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -61,6 +62,31 @@ def create_linkage_matrix(clustering):
         clustering.children_, 
         clustering.distances_,
         counts]).astype(float)
+
+
+def print_node(cluster_node, node_labels):
+    node_id = cluster_node.get_id()
+    try:
+        label = node_labels[node_id]
+    except KeyError as ex:
+        label = str(node_id)
+    d = {'name': label}
+    if not cluster_node.is_leaf():
+        right_subtree = print_node(cluster_node.get_right(), node_labels)
+        left_subtree = print_node(cluster_node.get_left(), node_labels)
+        d['children'] = [left_subtree, right_subtree]
+    return d
+
+
+def create_tree(linkage_matrix, node_labels):
+    '''
+    Creates a JSON structure amenable for plotting with a library
+    such as D3.
+    '''
+    cluster_node = to_tree(linkage_matrix)
+    full_tree = print_node(cluster_node, node_labels)
+    return full_tree
+
 
 def cluster(df, dist_metric, linkage):
     '''
@@ -119,30 +145,25 @@ if __name__ == '__main__':
     # read the matrix. This is, by our convention, (num features, num samples)
     df = pd.read_table(args.input_matrix, index_col=0)
 
-    feature_linkage_output, observation_linkage_output = None, None
+    obs_mapping = dict(zip(np.arange(df.shape[1]), df.columns.tolist()))
+    feature_mapping = dict(zip(np.arange(df.shape[0]), df.index.tolist()))
+
+    feature_tree_output, observation_tree_output = None, None
     if (args.cluster_dim == 'features') or (args.cluster_dim == 'both'):
         feature_clustering = cluster(df, args.dist_metric, args.linkage)
         feature_linkage_mtx = create_linkage_matrix(feature_clustering)
-        feature_linkage_output = 'hcl_features.tsv'
-        np.savetxt(
-            feature_linkage_output, 
-            feature_linkage_mtx, 
-            delimiter='\t', 
-            fmt=['%d','%d','%.3f','%d']
-        )
+        t = create_tree(feature_linkage_mtx, feature_mapping)
+        feature_tree_output = 'hcl_features.json'
+        json.dump(t, open(feature_tree_output, 'w'))
     if (args.cluster_dim == 'observations') or (args.cluster_dim == 'both'):
         observation_clustering = cluster(df.T, args.dist_metric, args.linkage)
         observation_linkage_mtx = create_linkage_matrix(observation_clustering)
-        observation_linkage_output = 'hcl_observations.tsv'
-        np.savetxt(
-            observation_linkage_output, 
-            observation_linkage_mtx, 
-            delimiter='\t', 
-            fmt=['%d','%d','%.3f','%d']
-        )
+        t = create_tree(observation_linkage_mtx, obs_mapping)
+        observation_tree_output = 'hcl_observations.json'
+        json.dump(t, open(observation_tree_output, 'w'))
 
     outputs = {
-        'hcl_features': feature_linkage_output,
-        'hcl_observations': observation_linkage_output
+        'hcl_features': feature_tree_output,
+        'hcl_observations': observation_tree_output
     }
     json.dump(outputs, open(os.path.join(working_dir, 'outputs.json'), 'w'))

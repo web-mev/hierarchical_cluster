@@ -47,14 +47,14 @@
         "observations_hcl": {
             "spec": {
                 "attribute_type": "DataResource", 
-                "resource_type": "MTX",
+                "resource_type": "JSON",
                 "many": false
             }
         },
         "features_hcl": {
             "spec": {
                 "attribute_type": "DataResource", 
-                "resource_type": "MTX",
+                "resource_type": "JSON",
                 "many": false
             }
         }
