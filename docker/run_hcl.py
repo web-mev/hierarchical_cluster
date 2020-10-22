@@ -153,13 +153,13 @@ if __name__ == '__main__':
         feature_clustering = cluster(df, args.dist_metric, args.linkage)
         feature_linkage_mtx = create_linkage_matrix(feature_clustering)
         t = create_tree(feature_linkage_mtx, feature_mapping)
-        feature_tree_output = 'hcl_features.json'
+        feature_tree_output = os.path.join(working_dir, 'hcl_features.json')
         json.dump(t, open(feature_tree_output, 'w'))
     if (args.cluster_dim == 'observations') or (args.cluster_dim == 'both'):
         observation_clustering = cluster(df.T, args.dist_metric, args.linkage)
         observation_linkage_mtx = create_linkage_matrix(observation_clustering)
         t = create_tree(observation_linkage_mtx, obs_mapping)
-        observation_tree_output = 'hcl_observations.json'
+        observation_tree_output = os.path.join(working_dir, 'hcl_observations.json')
         json.dump(t, open(observation_tree_output, 'w'))
 
     outputs = {
