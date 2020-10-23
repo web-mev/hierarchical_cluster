@@ -163,7 +163,7 @@ if __name__ == '__main__':
         json.dump(t, open(observation_tree_output, 'w'))
 
     outputs = {
-        'hcl_features': feature_tree_output,
-        'hcl_observations': observation_tree_output
+        'features_hcl': feature_tree_output,
+        'observations_hcl': observation_tree_output
     }
     json.dump(outputs, open(os.path.join(working_dir, 'outputs.json'), 'w'))
