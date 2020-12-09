@@ -1,6 +1,6 @@
 {
     "name": "Hierarchical clustering (HCL)", 
-    "description": "Executes a hierarchical clustering on observations, features, or both.", 
+    "description": "Executes a hierarchical clustering on samples/observations only.", 
     "inputs": {
         "input_matrix": {
             "description": "The input matrix. For example, a gene expression matrix for a cohort of samples.", 
@@ -28,7 +28,7 @@
             "required": false,
             "spec": {
                 "attribute_type": "OptionString",
-                "default": "both",
+                "default": "observations",
                 "options": ["both","observations", "features"]
             }
         },
