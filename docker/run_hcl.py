@@ -145,6 +145,10 @@ if __name__ == '__main__':
     # read the matrix. This is, by our convention, (num features, num samples)
     df = pd.read_table(args.input_matrix, index_col=0)
 
+    # Fill any NAs with zeros. Other types of "out of bounds" values (like inf)
+    # we don't change as we don't want to infer too much
+    df = df.fillna(0)
+
     obs_mapping = dict(zip(np.arange(df.shape[1]), df.columns.tolist()))
     feature_mapping = dict(zip(np.arange(df.shape[0]), df.index.tolist()))
 
