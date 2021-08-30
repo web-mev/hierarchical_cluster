@@ -99,7 +99,6 @@ def cluster(df, dist_metric, linkage):
     Thus, if the matrix is (n,m) it will cluster the `n` row-wise objects, regardless
     of whether they represent observations or features
     '''
-
     # Due to a constraint with scikit-learn, need to massage the args a bit.
     # For instance, even with a euclidean-calculated distance matrix, the cluster
     # method still errors since it NEEDS affinity='euclidean' if linkage='ward'
@@ -113,6 +112,16 @@ def cluster(df, dist_metric, linkage):
         # distance matrix.
         try:
             mtx = squareform(pdist(df, dist_metric))
+            if np.isnan(mtx).sum() > 0:
+                raise Exception('Based on your choice of distance metric ({choice}),'
+                    ' there were invalid elements encountered in the resulting "distance matrix".'
+                    ' This is typically caused by a metric'
+                    ' which does not make sense given your data. As an example, if '
+                    ' your data has multiple rows or columns of all zeros and you use correlation,'
+                    ' then you will get invalid values-- we cannot calculate the correlation'
+                    ' of measurements which are all zero. If you change the distance metric, then'
+                    ' it may still be possible to cluster this data.'. format(choice=dist_metric)
+                )
         except Exception as ex:
             sys.stderr.write('Failed when calculating the distance matrix.'
                 ' Reason: {ex}'.format(ex=ex)
